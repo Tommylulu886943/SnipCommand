@@ -1,15 +1,6 @@
 # CHANGELOGS
 
 
-### v0.2.2
-**March 6, 2026**
-
-#### Improvements
-- Updated README with comprehensive v0.2.x feature documentation
-- Cleaned up repository (removed internal reports from git tracking)
-
----
-
 ### v0.2.1
 **March 5, 2026**
 
