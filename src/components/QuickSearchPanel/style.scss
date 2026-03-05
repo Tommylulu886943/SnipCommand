@@ -1,0 +1,189 @@
+.comp_quick-search-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+  }
+
+  .search-input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    -webkit-app-region: drag;
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      padding: 6px 4px;
+      -webkit-app-region: no-drag;
+
+      &::placeholder {
+        font-size: 14px;
+      }
+    }
+
+    .btn-add {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 4px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      -webkit-app-region: no-drag;
+      transition: background 0.15s, color 0.15s;
+    }
+  }
+
+  .results-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 6px 14px;
+    }
+
+    .result-item {
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: background 0.1s;
+
+      .result-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .result-command {
+        font-size: 12px;
+        font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        span {
+          font-weight: bold;
+        }
+      }
+
+      .result-tags {
+        margin-top: 3px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+
+        span {
+          font-size: 10px;
+          padding: 1px 6px;
+          border-radius: 3px;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+
+    .empty-text {
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .btn-new {
+      font-size: 12px;
+      padding: 6px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  }
+
+  .param-form,
+  .quick-save-form {
+    padding: 12px 14px;
+
+    .qs-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .param-field {
+      margin-bottom: 8px;
+
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 6px 8px;
+        font-size: 13px;
+        border-radius: 4px;
+        outline: none;
+
+        &:focus {
+          border-color: #0078d4;
+        }
+      }
+    }
+
+    input,
+    textarea {
+      display: block;
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 4px;
+      outline: none;
+      margin-bottom: 8px;
+      font-family: inherit;
+      resize: vertical;
+
+      &:focus {
+        border-color: #0078d4;
+      }
+    }
+
+    .qs-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+
+      .btn {
+        padding: 5px 16px;
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    }
+  }
+}
