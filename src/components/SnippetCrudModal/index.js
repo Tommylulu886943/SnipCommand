@@ -8,6 +8,7 @@ import Api from "../../core/Api";
 import {TextField, TagsField, MarkdownField, Button, CommandField} from "../FormElements";
 import {isTextValid} from "../../core/Utils";
 import {ReduxHelpers, TagHelpers} from "../../core/Helpers";
+import {openConfirmDialog} from "../ConfirmDialog";
 
 import './style.scss';
 
@@ -16,7 +17,8 @@ class SnippetCrudModal extends React.Component {
     state = {
         formValues: {},
         errorValues: {},
-        autoSuggest: []
+        autoSuggest: [],
+        initialFormValues: {}
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -24,7 +26,11 @@ class SnippetCrudModal extends React.Component {
 
         if (show && id && prevProps.show !== show) {
             const formValues = Api.getInstance().getCommandById(id);
-            this.setState({formValues});
+            this.setState({formValues, initialFormValues: {...formValues}});
+        }
+
+        if (show && !id && prevProps.show !== show) {
+            this.setState({initialFormValues: {}});
         }
 
         if (show && prevProps.show !== show) {
@@ -38,9 +44,44 @@ class SnippetCrudModal extends React.Component {
         this.setState({formValues: {...formValues, ...obj}});
     }
 
+    hasUnsavedChanges = () => {
+        const {formValues, initialFormValues} = this.state;
+        const {id} = this.props;
+        const fields = ['title', 'command', 'tags', 'description'];
+
+        if (id) {
+            return fields.some(f => (formValues[f] || '') !== (initialFormValues[f] || ''));
+        } else {
+            return fields.some(f => formValues[f] && formValues[f].trim() !== '');
+        }
+    }
+
+    onRequestClose = () => {
+        if (this.hasUnsavedChanges()) {
+            openConfirmDialog({
+                title: 'Unsaved Changes',
+                text: 'You have unsaved changes. Are you sure you want to discard them?',
+                buttons: [
+                    {
+                        label: 'Discard',
+                        onClick: () => this.onClose(),
+                        className: 'btn btn-danger'
+                    },
+                    {
+                        label: 'Keep Editing',
+                        onClick: () => null,
+                        className: 'btn btn-default'
+                    }
+                ]
+            });
+        } else {
+            this.onClose();
+        }
+    }
+
     onClose = () => {
         const {onClose, setTags, setCommandList, selectedMenu} = this.props;
-        this.setState({formValues: {}, errorValues: {}});
+        this.setState({formValues: {}, errorValues: {}, initialFormValues: {}});
         setTags();
         setCommandList(selectedMenu);
         onClose && onClose();
@@ -86,7 +127,7 @@ class SnippetCrudModal extends React.Component {
         return (
             <div className="button-container">
                 <div className="btn-cancel-container">
-                    <Button styleType="default" text="Cancel" onClick={this.onClose}/>
+                    <Button styleType="default" text="Cancel" onClick={this.onRequestClose}/>
                 </div>
                 <div className="btn-save-container">
                     <Button styleType="success" onClick={this.onSubmit} text="Save Changes"/>
@@ -104,7 +145,7 @@ class SnippetCrudModal extends React.Component {
             <div className="comp_snippet-crud-modal">
                 <Modal
                     show={show}
-                    onClose={this.onClose}
+                    onClose={this.onRequestClose}
                     title={modalTitle}
                     footerTemplate={this._footer}
                 >

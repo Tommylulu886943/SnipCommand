@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain, dialog, Tray, Menu: ElectronMenu, nativeImage, globalShortcut, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Tray, Menu: ElectronMenu, nativeImage, globalShortcut, screen, clipboard } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
+const { execFile } = require('child_process');
 const Store = require('electron-store');
 const { menu } = require("./menu");
 
@@ -9,6 +10,7 @@ const preferences = new Store({ name: 'preferences' });
 let mainWindow;
 let tray = null;
 let searchWindow = null;
+let quickAddWindow = null;
 const isWindows = process.platform === "win32";
 
 // ──────────────────────────────────────
@@ -103,18 +105,18 @@ function createTray() {
 // ──────────────────────────────────────
 // Search Panel Window
 // ──────────────────────────────────────
-function getSearchPanelPosition() {
+function getPanelPosition(panelWidth = 600, panelHeight = 500) {
     const cursorPoint = screen.getCursorScreenPoint();
     const display = screen.getDisplayNearestPoint(cursorPoint);
     const { x, y, width, height } = display.workArea;
     return {
-        x: Math.round(x + (width - 600) / 2),
-        y: Math.round(y + (height - 500) / 2)
+        x: Math.round(x + (width - panelWidth) / 2),
+        y: Math.round(y + (height - panelHeight) / 2)
     };
 }
 
 function createSearchWindow() {
-    const pos = getSearchPanelPosition();
+    const pos = getPanelPosition();
     const theme = preferences.get('appTheme') || 'light';
     const bgColor = theme === 'dark' ? '#21252B' : '#F8F8FA';
 
@@ -165,7 +167,7 @@ function toggleSearchPanel() {
     } else if (searchWindow.isVisible()) {
         searchWindow.hide();
     } else {
-        const pos = getSearchPanelPosition();
+        const pos = getPanelPosition();
         searchWindow.setPosition(pos.x, pos.y);
         searchWindow.show();
         searchWindow.focus();
@@ -174,15 +176,114 @@ function toggleSearchPanel() {
 }
 
 // ──────────────────────────────────────
+// Quick Add Panel Window
+// ──────────────────────────────────────
+function createQuickAddWindow() {
+    const pos = getPanelPosition(500, 460);
+    const theme = preferences.get('appTheme') || 'light';
+    const bgColor = theme === 'dark' ? '#21252B' : '#F8F8FA';
+
+    quickAddWindow = new BrowserWindow({
+        width: 500,
+        height: 460,
+        x: pos.x,
+        y: pos.y,
+        frame: false,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+        resizable: false,
+        show: false,
+        icon: path.join(__dirname, 'images', 'logo', 'snip_command.png'),
+        backgroundColor: bgColor,
+        webPreferences: {
+            nodeIntegration: true,
+            enableRemoteModule: true,
+            webSecurity: true,
+            allowRunningInsecureContent: false
+        }
+    });
+
+    const baseUrl = isDev
+        ? 'http://localhost:3000?view=quickadd'
+        : `file://${path.join(__dirname, '../build/index.html')}?view=quickadd`;
+
+    quickAddWindow.loadURL(baseUrl);
+
+    quickAddWindow.on('blur', () => {
+        if (quickAddWindow && quickAddWindow.isVisible()) {
+            quickAddWindow.hide();
+        }
+    });
+
+    quickAddWindow.on('closed', () => {
+        quickAddWindow = null;
+    });
+}
+
+function captureSelectedText() {
+    return new Promise((resolve) => {
+        const prevClipboard = clipboard.readText();
+
+        let copyCmd, copyArgs;
+        if (process.platform === 'win32') {
+            copyCmd = 'powershell';
+            copyArgs = ['-NoProfile', '-NonInteractive', '-Command',
+                'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait("^c")'];
+        } else if (process.platform === 'darwin') {
+            copyCmd = 'osascript';
+            copyArgs = ['-e', 'tell application "System Events" to keystroke "c" using command down'];
+        } else {
+            copyCmd = 'xdotool';
+            copyArgs = ['key', 'ctrl+c'];
+        }
+
+        execFile(copyCmd, copyArgs, () => {
+            setTimeout(() => {
+                const captured = clipboard.readText();
+                clipboard.writeText(prevClipboard);
+                resolve(captured !== prevClipboard ? captured : '');
+            }, 100);
+        });
+    });
+}
+
+async function toggleQuickAddPanel() {
+    const selectedText = await captureSelectedText();
+
+    if (!quickAddWindow) {
+        createQuickAddWindow();
+        quickAddWindow.once('ready-to-show', () => {
+            quickAddWindow.show();
+            quickAddWindow.focus();
+            quickAddWindow.webContents.send('quick-add-shown', {selectedText});
+        });
+    } else if (quickAddWindow.isVisible()) {
+        quickAddWindow.hide();
+    } else {
+        const pos = getPanelPosition(500, 460);
+        quickAddWindow.setPosition(pos.x, pos.y);
+        quickAddWindow.show();
+        quickAddWindow.focus();
+        quickAddWindow.webContents.send('quick-add-shown', {selectedText});
+    }
+}
+
+// ──────────────────────────────────────
 // Global Hotkey
 // ──────────────────────────────────────
-function registerGlobalHotkey(hotkey) {
+function registerGlobalHotkeys() {
     globalShortcut.unregisterAll();
-    if (hotkey) {
-        const registered = globalShortcut.register(hotkey, toggleSearchPanel);
-        if (!registered) {
-            console.error('Failed to register global shortcut:', hotkey);
-        }
+
+    const searchHotkey = preferences.get('globalHotkey') || 'Alt+C';
+    if (searchHotkey) {
+        const ok = globalShortcut.register(searchHotkey, toggleSearchPanel);
+        if (!ok) console.error('Failed to register search hotkey:', searchHotkey);
+    }
+
+    const addHotkey = preferences.get('quickAddHotkey') || 'Alt+Z';
+    if (addHotkey) {
+        const ok = globalShortcut.register(addHotkey, toggleQuickAddPanel);
+        if (!ok) console.error('Failed to register quick-add hotkey:', addHotkey);
     }
 }
 
@@ -196,9 +297,7 @@ app.commandLine.appendSwitch('disable-software-rasterizer');
 app.on("ready", () => {
     createWindow();
     createTray();
-
-    const hotkey = preferences.get('globalHotkey') || 'Alt+C';
-    registerGlobalHotkey(hotkey);
+    registerGlobalHotkeys();
 });
 
 app.on('before-quit', () => {
@@ -265,7 +364,30 @@ ipcMain.handle('hide-search-panel', () => {
     if (searchWindow) searchWindow.hide();
 });
 
-// Settings
-ipcMain.handle('update-global-hotkey', (e, newHotkey) => {
-    registerGlobalHotkey(newHotkey);
+// Paste to foreground app
+ipcMain.handle('paste-to-foreground', () => {
+    if (searchWindow) searchWindow.hide();
+
+    setTimeout(() => {
+        if (process.platform === 'win32') {
+            execFile('powershell', [
+                '-NoProfile', '-NonInteractive', '-Command',
+                'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait("^v")'
+            ]);
+        } else if (process.platform === 'darwin') {
+            execFile('osascript', ['-e', 'tell application "System Events" to keystroke "v" using command down']);
+        } else {
+            execFile('xdotool', ['key', 'ctrl+v']);
+        }
+    }, 150);
+});
+
+// Quick Add panel
+ipcMain.handle('hide-quick-add-panel', () => {
+    if (quickAddWindow) quickAddWindow.hide();
+});
+
+// Settings — re-register all hotkeys when any hotkey changes
+ipcMain.handle('update-global-hotkeys', () => {
+    registerGlobalHotkeys();
 });

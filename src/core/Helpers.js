@@ -51,6 +51,14 @@ const storagePrefences = new Store({
         autoCloseAfterCopy: {
             type: 'boolean',
             default: true
+        },
+        autoPaste: {
+            type: 'boolean',
+            default: true
+        },
+        quickAddHotkey: {
+            type: 'string',
+            default: 'Alt+Z'
         }
     }
 })

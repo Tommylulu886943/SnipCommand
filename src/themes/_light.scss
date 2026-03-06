@@ -846,6 +846,74 @@ body {
       }
     }
 
+    .comp_quick-add-panel {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+      .panel-header {
+        border-bottom: 1px solid #eee;
+
+        .panel-title {
+          color: #333;
+        }
+
+        .btn-close-panel {
+          color: #888;
+
+          &:hover {
+            color: #333;
+            background: #f0f0f0;
+          }
+        }
+      }
+
+      .panel-body {
+        label {
+          color: #555;
+        }
+
+        input[type="text"],
+        textarea {
+          color: #333;
+          background: #fff;
+          border: 1px solid #ced4da;
+        }
+
+        .tags-input-area {
+          border: 1px solid #ced4da;
+          background: #fff;
+
+          .tag-chip {
+            background: #e5e5e5;
+            color: #333;
+
+            button {
+              color: #888;
+            }
+          }
+        }
+
+        .tag-suggestions {
+          background: #fff;
+          border: 1px solid #ddd;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+          .suggestion-item {
+            color: #333;
+
+            &:hover {
+              background: #f0f0f0;
+            }
+          }
+        }
+      }
+
+      .panel-footer {
+        border-top: 1px solid #eee;
+      }
+    }
+
     .noty_theme__sunset {
       &.noty_type__success {
         background-color: #007A5A;

@@ -188,7 +188,12 @@ class QuickSearchPanel extends Component {
 
         const autoClose = StorageHelpers.preference.get('autoCloseAfterCopy') !== false;
         if (autoClose) {
-            ipcRenderer.invoke('hide-search-panel');
+            const autoPaste = StorageHelpers.preference.get('autoPaste') !== false;
+            if (autoPaste) {
+                ipcRenderer.invoke('paste-to-foreground');
+            } else {
+                ipcRenderer.invoke('hide-search-panel');
+            }
         } else {
             this.setState({paramForm: null, paramValues: {}});
         }

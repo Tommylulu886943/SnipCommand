@@ -20,8 +20,10 @@ class SettingsModal extends React.Component {
         backupFiles: [],
         appTheme: 'light',
         globalHotkey: 'Alt+C',
+        quickAddHotkey: 'Alt+Z',
         autoCloseAfterCopy: true,
-        isRecordingHotkey: false
+        autoPaste: true,
+        recordingTarget: null
     }
 
     componentDidMount() {
@@ -29,13 +31,15 @@ class SettingsModal extends React.Component {
         const backupDirectory = StorageHelpers.preference.get('backupPath');
         const appTheme = StorageHelpers.preference.get('appTheme') || 'light';
         const globalHotkey = StorageHelpers.preference.get('globalHotkey') || 'Alt+C';
+        const quickAddHotkey = StorageHelpers.preference.get('quickAddHotkey') || 'Alt+Z';
         const autoCloseAfterCopy = StorageHelpers.preference.get('autoCloseAfterCopy') !== false;
-        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, autoCloseAfterCopy});
+        const autoPaste = StorageHelpers.preference.get('autoPaste') !== false;
+        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste});
         this.listBackupFiles();
     }
 
     componentWillUnmount() {
-        if (this.state.isRecordingHotkey) {
+        if (this.state.recordingTarget) {
             document.removeEventListener('keydown', this.handleHotkeyCapture);
         }
     }
@@ -124,14 +128,15 @@ class SettingsModal extends React.Component {
         this.setState({appTheme});
     }
 
-    toggleHotkeyRecording = () => {
-        if (this.state.isRecordingHotkey) {
-            this.setState({isRecordingHotkey: false});
+    toggleHotkeyRecording = (target) => {
+        const {recordingTarget} = this.state;
+        if (recordingTarget) {
+            this.setState({recordingTarget: null});
             document.removeEventListener('keydown', this.handleHotkeyCapture);
-        } else {
-            this.setState({isRecordingHotkey: true});
-            document.addEventListener('keydown', this.handleHotkeyCapture);
+            if (recordingTarget === target) return;
         }
+        this.setState({recordingTarget: target});
+        document.addEventListener('keydown', this.handleHotkeyCapture);
     }
 
     handleHotkeyCapture = (e) => {
@@ -146,13 +151,18 @@ class SettingsModal extends React.Component {
         if (!['Control', 'Alt', 'Shift', 'Meta'].includes(key)) {
             parts.push(key.length === 1 ? key.toUpperCase() : key);
             const hotkey = parts.join('+');
+            const {recordingTarget} = this.state;
 
-            StorageHelpers.preference.set('globalHotkey', hotkey);
-            this.setState({globalHotkey: hotkey, isRecordingHotkey: false});
+            const prefKey = recordingTarget === 'quickAdd' ? 'quickAddHotkey' : 'globalHotkey';
+            const stateKey = recordingTarget === 'quickAdd' ? 'quickAddHotkey' : 'globalHotkey';
+            const label = recordingTarget === 'quickAdd' ? 'Quick Add' : 'Quick Search';
+
+            StorageHelpers.preference.set(prefKey, hotkey);
+            this.setState({[stateKey]: hotkey, recordingTarget: null});
             document.removeEventListener('keydown', this.handleHotkeyCapture);
 
-            ipcRenderer.invoke('update-global-hotkey', hotkey);
-            NotyHelpers.open(`Hotkey updated to: ${hotkey}`, 'success', 2500);
+            ipcRenderer.invoke('update-global-hotkeys');
+            NotyHelpers.open(`${label} hotkey updated to: ${hotkey}`, 'success', 2500);
         }
     }
 
@@ -162,8 +172,14 @@ class SettingsModal extends React.Component {
         this.setState({autoCloseAfterCopy: newVal});
     }
 
+    toggleAutoPaste = () => {
+        const newVal = !this.state.autoPaste;
+        StorageHelpers.preference.set('autoPaste', newVal);
+        this.setState({autoPaste: newVal});
+    }
+
     render() {
-        const {dbDirectory, backupDirectory, backupFiles, appTheme, globalHotkey, autoCloseAfterCopy, isRecordingHotkey} = this.state;
+        const {dbDirectory, backupDirectory, backupFiles, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recordingTarget} = this.state;
         const {show, onClose, selectedTab} = this.props;
 
         return (
@@ -219,13 +235,32 @@ class SettingsModal extends React.Component {
                                         <TextField
                                             name="hotkey"
                                             readOnly={true}
-                                            value={isRecordingHotkey ? "Press keys..." : globalHotkey}
+                                            value={recordingTarget === 'search' ? "Press keys..." : globalHotkey}
                                         />
                                     </div>
                                     <Button
-                                        text={isRecordingHotkey ? "Cancel" : "Record"}
+                                        text={recordingTarget === 'search' ? "Cancel" : "Record"}
                                         styleType="default"
-                                        onClick={this.toggleHotkeyRecording}
+                                        onClick={() => this.toggleHotkeyRecording('search')}
+                                    />
+                                </div>
+
+                                <div className="sub-title" style={{marginTop: 20}}>Quick Add Hotkey</div>
+                                <div className="info">
+                                    Press "Record" and type your desired key combination. This hotkey captures the selected text from the active window and opens the Quick Add panel.
+                                </div>
+                                <div className="hotkey-recorder">
+                                    <div className="hotkey-display">
+                                        <TextField
+                                            name="quickAddHotkey"
+                                            readOnly={true}
+                                            value={recordingTarget === 'quickAdd' ? "Press keys..." : quickAddHotkey}
+                                        />
+                                    </div>
+                                    <Button
+                                        text={recordingTarget === 'quickAdd' ? "Cancel" : "Record"}
+                                        styleType="default"
+                                        onClick={() => this.toggleHotkeyRecording('quickAdd')}
                                     />
                                 </div>
 
@@ -238,6 +273,16 @@ class SettingsModal extends React.Component {
                                             onChange={this.toggleAutoClose}
                                         />
                                         <span>Auto-close search panel after copying command</span>
+                                    </label>
+                                </div>
+                                <div className="checkbox-container">
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={autoPaste}
+                                            onChange={this.toggleAutoPaste}
+                                        />
+                                        <span>Auto-paste to active window after copying (requires auto-close)</span>
                                     </label>
                                 </div>
                             </div>

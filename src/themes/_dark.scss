@@ -916,6 +916,78 @@ body {
       }
     }
 
+    .comp_quick-add-panel {
+      background: #282C34;
+      border: 1px solid #333842;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+      .panel-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
+        .panel-title {
+          color: #ddd;
+        }
+
+        .btn-close-panel {
+          color: #888;
+
+          &:hover {
+            color: #eee;
+            background: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+
+      .panel-body {
+        label {
+          color: #bbb;
+        }
+
+        input[type="text"],
+        textarea {
+          color: #ddd;
+          background: #21252B;
+          border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .tags-input-area {
+          border: 1px solid rgba(255, 255, 255, 0.35);
+          background: #21252B;
+
+          .tag-chip {
+            background: #333842;
+            color: #bbb;
+
+            button {
+              color: #888;
+            }
+          }
+
+          .tag-text-input {
+            color: #ddd;
+          }
+        }
+
+        .tag-suggestions {
+          background: #282C34;
+          border: 1px solid rgba(255, 255, 255, 0.35);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+          .suggestion-item {
+            color: #bbb;
+
+            &:hover {
+              background: #333842;
+            }
+          }
+        }
+      }
+
+      .panel-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+      }
+    }
+
     .noty_theme__sunset {
       &.noty_type__success {
         background-color: #007A5A;
