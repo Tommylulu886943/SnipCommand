@@ -1,6 +1,20 @@
 # CHANGELOGS
 
 
+### v0.2.3
+**March 6, 2026**
+
+#### Bug Fixes
+- **Fixed auto-paste and text capture for external apps** — Replaced VBS/PowerShell `SendKeys` (which used journal hooks that fail for external apps, console windows, and elevated processes) with a compiled C# helper using `keybd_event` Win32 API for reliable keystroke injection to any window
+- **Fixed Quick Add first-open data not pre-filling** — Selected text from external apps now correctly appears in the Command field on first open (switched from push-based IPC to pull-based `ipcRenderer.invoke`)
+- **Fixed foreground window capture timing** — HWND is now captured synchronously before the panel steals focus, ensuring paste targets the correct window
+
+#### Improvements
+- Configurable "Recently used items" count in Settings > General (1–50, default 10)
+- Foreground window tracking now uses HWND instead of PID for more reliable window activation
+
+---
+
 ### v0.2.2
 **March 6, 2026**
 
