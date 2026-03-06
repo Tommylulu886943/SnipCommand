@@ -59,6 +59,10 @@ const storagePrefences = new Store({
         quickAddHotkey: {
             type: 'string',
             default: 'Alt+Z'
+        },
+        recentCount: {
+            type: 'number',
+            default: 10
         }
     }
 })

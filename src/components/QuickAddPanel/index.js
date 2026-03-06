@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {clipboard, ipcRenderer} from 'electron';
+import {ipcRenderer} from 'electron';
 import shortid from 'shortid';
 
 import Api from '../../core/Api';
@@ -46,10 +46,17 @@ class QuickAddPanel extends Component {
 
         ipcRenderer.on('quick-add-shown', this._shownHandler);
 
-        // Initial load
-        const suggestions = this.loadSuggestions();
-        this.setState({autoSuggest: suggestions});
-        if (this.titleInput) this.titleInput.focus();
+        // Pull initial data (first open — IPC event may arrive before mount)
+        ipcRenderer.invoke('get-quick-add-data').then(data => {
+            const selectedText = (data && data.selectedText) || '';
+            const suggestions = this.loadSuggestions();
+            this.setState({
+                command: selectedText,
+                autoSuggest: suggestions
+            }, () => {
+                if (this.titleInput) this.titleInput.focus();
+            });
+        });
     }
 
     componentWillUnmount() {

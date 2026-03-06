@@ -23,6 +23,7 @@ class SettingsModal extends React.Component {
         quickAddHotkey: 'Alt+Z',
         autoCloseAfterCopy: true,
         autoPaste: true,
+        recentCount: 10,
         recordingTarget: null
     }
 
@@ -34,7 +35,8 @@ class SettingsModal extends React.Component {
         const quickAddHotkey = StorageHelpers.preference.get('quickAddHotkey') || 'Alt+Z';
         const autoCloseAfterCopy = StorageHelpers.preference.get('autoCloseAfterCopy') !== false;
         const autoPaste = StorageHelpers.preference.get('autoPaste') !== false;
-        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste});
+        const recentCount = StorageHelpers.preference.get('recentCount') || 10;
+        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount});
         this.listBackupFiles();
     }
 
@@ -178,8 +180,14 @@ class SettingsModal extends React.Component {
         this.setState({autoPaste: newVal});
     }
 
+    onRecentCountChange = (e) => {
+        const val = Math.max(1, Math.min(50, parseInt(e.target.value) || 10));
+        StorageHelpers.preference.set('recentCount', val);
+        this.setState({recentCount: val});
+    }
+
     render() {
-        const {dbDirectory, backupDirectory, backupFiles, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recordingTarget} = this.state;
+        const {dbDirectory, backupDirectory, backupFiles, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount, recordingTarget} = this.state;
         const {show, onClose, selectedTab} = this.props;
 
         return (
@@ -284,6 +292,18 @@ class SettingsModal extends React.Component {
                                         />
                                         <span>Auto-paste to active window after copying (requires auto-close)</span>
                                     </label>
+                                </div>
+
+                                <div className="sub-title" style={{marginTop: 20}}>Quick Search Panel</div>
+                                <div className="number-field-container">
+                                    <label>Recently used items to display</label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        max={50}
+                                        value={recentCount}
+                                        onChange={this.onRecentCountChange}
+                                    />
                                 </div>
                             </div>
                         </div>

@@ -71,12 +71,13 @@ class QuickSearchPanel extends Component {
     loadRecent = () => {
         try {
             const api = Api.getInstance();
+            const count = StorageHelpers.preference.get('recentCount') || 10;
             const all = api.getAllCommands();
             const recent = all
                 .filter(c => c.lastUsedAt)
                 .sort((a, b) => (b.lastUsedAt || '').localeCompare(a.lastUsedAt || ''))
-                .slice(0, 10);
-            this.setState({results: recent.length > 0 ? recent : all.slice(0, 10)});
+                .slice(0, count);
+            this.setState({results: recent.length > 0 ? recent : all.slice(0, count)});
         } catch (e) {
             this.setState({results: []});
         }

@@ -98,6 +98,13 @@
   "build": {
     "productName": "SnipCommand",
     "appId": "com.snipcommand.app",
+    "publish": {
+      "provider": "github",
+      "releaseType": "release"
+    },
+    "releaseInfo": {
+      "releaseNotesFile": "RELEASE_NOTES.md"
+    },
     "directories": {
       "output": "app"
     },
