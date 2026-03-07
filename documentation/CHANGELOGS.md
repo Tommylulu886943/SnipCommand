@@ -1,6 +1,17 @@
 # CHANGELOGS
 
 
+### v0.2.4
+**March 8, 2026**
+
+#### Improvements
+- **Dynamic search panel height** — QuickSearchPanel window size now adjusts based on the "Recently used items" count setting, avoiding empty space when count is small
+- **Configurable panel position** — New dropdown in Settings > General to choose where QuickSearch/QuickAdd panels appear: Center (default), Top Center, Bottom Center, Top Left, Top Right, Bottom Left, Bottom Right
+- Settings modal now defaults to the General tab when opened
+- Release build auto-removes `latest.yml` and `.blockmap` from GitHub release assets
+
+---
+
 ### v0.2.3
 **March 6, 2026**
 
