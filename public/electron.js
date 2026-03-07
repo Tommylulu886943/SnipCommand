@@ -108,24 +108,49 @@ function createTray() {
 // ──────────────────────────────────────
 // Search Panel Window
 // ──────────────────────────────────────
-function getPanelPosition(panelWidth = 600, panelHeight = 500) {
+function getSearchPanelHeight() {
+    const count = preferences.get('recentCount') || 10;
+    const headerHeight = 52;
+    const itemHeight = 54;
+    const minHeight = 200;
+    const maxHeight = 600;
+    return Math.max(minHeight, Math.min(maxHeight, headerHeight + count * itemHeight));
+}
+
+function getPanelPosition(panelWidth = 600, panelHeight = 500, position) {
     const cursorPoint = screen.getCursorScreenPoint();
     const display = screen.getDisplayNearestPoint(cursorPoint);
     const { x, y, width, height } = display.workArea;
-    return {
-        x: Math.round(x + (width - panelWidth) / 2),
-        y: Math.round(y + (height - panelHeight) / 2)
-    };
+    const margin = 20;
+
+    switch (position || preferences.get('panelPosition') || 'center') {
+        case 'top-left':
+            return { x: x + margin, y: y + margin };
+        case 'top-center':
+            return { x: Math.round(x + (width - panelWidth) / 2), y: y + margin };
+        case 'top-right':
+            return { x: Math.round(x + width - panelWidth - margin), y: y + margin };
+        case 'bottom-left':
+            return { x: x + margin, y: Math.round(y + height - panelHeight - margin) };
+        case 'bottom-center':
+            return { x: Math.round(x + (width - panelWidth) / 2), y: Math.round(y + height - panelHeight - margin) };
+        case 'bottom-right':
+            return { x: Math.round(x + width - panelWidth - margin), y: Math.round(y + height - panelHeight - margin) };
+        case 'center':
+        default:
+            return { x: Math.round(x + (width - panelWidth) / 2), y: Math.round(y + (height - panelHeight) / 2) };
+    }
 }
 
 function createSearchWindow() {
-    const pos = getPanelPosition();
+    const panelHeight = getSearchPanelHeight();
+    const pos = getPanelPosition(600, panelHeight);
     const theme = preferences.get('appTheme') || 'light';
     const bgColor = theme === 'dark' ? '#21252B' : '#F8F8FA';
 
     searchWindow = new BrowserWindow({
         width: 600,
-        height: 500,
+        height: panelHeight,
         x: pos.x,
         y: pos.y,
         frame: false,
@@ -172,7 +197,9 @@ function toggleSearchPanel() {
         searchWindow.hide();
     } else {
         captureForegroundWindow();
-        const pos = getPanelPosition();
+        const panelHeight = getSearchPanelHeight();
+        const pos = getPanelPosition(600, panelHeight);
+        searchWindow.setSize(600, panelHeight);
         searchWindow.setPosition(pos.x, pos.y);
         searchWindow.show();
         searchWindow.focus();

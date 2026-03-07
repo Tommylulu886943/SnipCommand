@@ -33,7 +33,7 @@
     "test": "rescripts test",
     "eject": "react-scripts eject",
     "electron-dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
-    "release": "cross-env NODE_OPTIONS=--openssl-legacy-provider rescripts build && electron-builder"
+    "release": "cross-env NODE_OPTIONS=--openssl-legacy-provider rescripts build && electron-builder --publish always && node scripts/clean-release-assets.js"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -101,9 +101,6 @@
     "publish": {
       "provider": "github",
       "releaseType": "release"
-    },
-    "releaseInfo": {
-      "releaseNotesFile": "RELEASE_NOTES.md"
     },
     "directories": {
       "output": "app"

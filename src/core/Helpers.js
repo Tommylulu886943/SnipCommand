@@ -63,6 +63,10 @@ const storagePrefences = new Store({
         recentCount: {
             type: 'number',
             default: 10
+        },
+        panelPosition: {
+            type: 'string',
+            default: 'center'
         }
     }
 })

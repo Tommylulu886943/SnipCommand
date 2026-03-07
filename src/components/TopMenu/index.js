@@ -17,7 +17,7 @@ class TopMenu extends Component {
     state = {
         maximize: false,
         showSettingsModal: false,
-        settingsSelectedTab: 'storage',
+        settingsSelectedTab: 'general',
         isWindows: process.platform === 'win32'
     }
 
@@ -109,7 +109,7 @@ class TopMenu extends Component {
                 </div>
                 <div className="right-side">
                     <button className="btn-preferences" title="Preferences"
-                        onClick={() => this.setState({ showSettingsModal: true, settingsSelectedTab: 'storage' })}>
+                        onClick={() => this.setState({ showSettingsModal: true, settingsSelectedTab: 'general' })}>
                         <SvgIcon name="settings" />
                     </button>
                     {

@@ -24,6 +24,7 @@ class SettingsModal extends React.Component {
         autoCloseAfterCopy: true,
         autoPaste: true,
         recentCount: 10,
+        panelPosition: 'center',
         recordingTarget: null
     }
 
@@ -36,7 +37,8 @@ class SettingsModal extends React.Component {
         const autoCloseAfterCopy = StorageHelpers.preference.get('autoCloseAfterCopy') !== false;
         const autoPaste = StorageHelpers.preference.get('autoPaste') !== false;
         const recentCount = StorageHelpers.preference.get('recentCount') || 10;
-        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount});
+        const panelPosition = StorageHelpers.preference.get('panelPosition') || 'center';
+        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount, panelPosition});
         this.listBackupFiles();
     }
 
@@ -186,8 +188,14 @@ class SettingsModal extends React.Component {
         this.setState({recentCount: val});
     }
 
+    onPanelPositionChange = (e) => {
+        const val = e.target.value;
+        StorageHelpers.preference.set('panelPosition', val);
+        this.setState({panelPosition: val});
+    }
+
     render() {
-        const {dbDirectory, backupDirectory, backupFiles, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount, recordingTarget} = this.state;
+        const {dbDirectory, backupDirectory, backupFiles, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount, panelPosition, recordingTarget} = this.state;
         const {show, onClose, selectedTab} = this.props;
 
         return (
@@ -304,6 +312,18 @@ class SettingsModal extends React.Component {
                                         value={recentCount}
                                         onChange={this.onRecentCountChange}
                                     />
+                                </div>
+                                <div className="select-field-container">
+                                    <label>Panel position</label>
+                                    <select value={panelPosition} onChange={this.onPanelPositionChange}>
+                                        <option value="center">Center</option>
+                                        <option value="top-center">Top Center</option>
+                                        <option value="bottom-center">Bottom Center</option>
+                                        <option value="top-left">Top Left</option>
+                                        <option value="top-right">Top Right</option>
+                                        <option value="bottom-left">Bottom Left</option>
+                                        <option value="bottom-right">Bottom Right</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>

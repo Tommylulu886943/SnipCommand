@@ -360,12 +360,14 @@ body {
             color: #dddddd;
           }
 
-          .number-field-container {
+          .number-field-container,
+          .select-field-container {
             label {
               color: #dddddd;
             }
 
-            input[type="number"] {
+            input[type="number"],
+            select {
               background: #282C34;
               color: #ddd;
               border-color: rgba(255, 255, 255, 0.35);
