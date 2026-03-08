@@ -1,4 +1,6 @@
 .comp_command-area {
+  min-width: 0;
+
   .body-container {
     display: flex;
     flex-direction: column;
