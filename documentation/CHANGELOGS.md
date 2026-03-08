@@ -1,6 +1,14 @@
 # CHANGELOGS
 
 
+### v0.2.5
+**March 8, 2026**
+
+#### Bug Fixes
+- **Fixed QuickSearch not finding newly added commands** — QuickSearch panel now reloads the database from disk each time it is shown, so commands added from the main window or QuickAdd panel appear immediately without restarting the app. Root cause: each Electron BrowserWindow maintained its own in-memory lowdb cache that was never refreshed after external writes.
+
+---
+
 ### v0.2.4
 **March 8, 2026**
 

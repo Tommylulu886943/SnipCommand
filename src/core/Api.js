@@ -27,6 +27,10 @@ class Api {
         this.db.defaults({commands: []}).write();
     }
 
+    reload() {
+        this.db.read();
+    }
+
     addNewCommandItem = item => this.db.get('commands').push(item).write();
 
     updateCommandItem = obj => this.db.get('commands').find({id: obj.id}).assign(obj).write();

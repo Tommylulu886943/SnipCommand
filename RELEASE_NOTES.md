@@ -1,3 +1,10 @@
+## v0.2.5
+
+### Bug Fixes
+- **Fixed QuickSearch not finding newly added commands** — Commands added from the main window or QuickAdd panel now appear immediately in QuickSearch without restarting the app
+
+---
+
 ## Bug Fixes
 - **Fixed auto-paste and text capture for external apps** — Replaced VBS/PowerShell `SendKeys` with compiled C# helper using `keybd_event` Win32 API for reliable keystroke injection to any window (notepad, powershell, browsers, etc.)
 - **Fixed Quick Add first-open data not pre-filling** — Selected text now correctly appears in the Command field on first open

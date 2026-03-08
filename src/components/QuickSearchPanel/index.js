@@ -41,6 +41,7 @@ class QuickSearchPanel extends Component {
         if (this.searchInput) this.searchInput.focus();
 
         this._shownHandler = () => {
+            try { Api.getInstance().reload(); } catch (e) { /* ignore */ }
             this.setState({
                 query: '',
                 results: [],
