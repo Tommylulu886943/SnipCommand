@@ -6,6 +6,7 @@
 
 #### Bug Fixes
 - **Fixed QuickSearch not finding newly added commands** — QuickSearch panel now reloads the database from disk each time it is shown, so commands added from the main window or QuickAdd panel appear immediately without restarting the app. Root cause: each Electron BrowserWindow maintained its own in-memory lowdb cache that was never refreshed after external writes.
+- **Fixed long commands breaking action buttons layout** — When a command snippet had very long text, it caused the list item to overflow, pushing the Delete/Edit/Favourite buttons off-screen for all items on the page. Added `overflow: hidden` and `text-overflow: ellipsis` constraints to the command list item layout.
 
 ---
 

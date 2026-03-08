@@ -2,6 +2,7 @@
 
 ### Bug Fixes
 - **Fixed QuickSearch not finding newly added commands** — Commands added from the main window or QuickAdd panel now appear immediately in QuickSearch without restarting the app
+- **Fixed long commands breaking action buttons layout** — Delete/Edit/Favourite buttons no longer get pushed off-screen when a command snippet contains very long text
 
 ---
 

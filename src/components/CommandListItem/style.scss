@@ -1,5 +1,6 @@
 .comp_command-list-item {
   position: relative;
+  overflow: hidden;
 
   &:hover {
     .command-list-menu {
@@ -16,6 +17,8 @@
 
     .left-side {
       margin-right: auto;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .right-side {
@@ -32,11 +35,17 @@
     .title {
       font-size: 13px;
       margin-bottom: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .code {
       font-weight: bold;
       font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .tags-list {
