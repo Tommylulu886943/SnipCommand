@@ -177,7 +177,7 @@ const ReduxHelpers = {
 
     fillCommands: (dispatch, selectedMenu, query) => dispatch({
         type: SET_COMMAND_LIST,
-        payload: CommandHelpers.getCommands(selectedMenu, query)
+        payload: CommandHelpers.getCommands(selectedMenu, query).map(item => ({...item}))
     }),
 
     setSelectedMenu: (dispatch, selectedMenu) => dispatch({

@@ -7,6 +7,7 @@
 #### Bug Fixes
 - **Fixed QuickSearch not finding newly added commands** — QuickSearch panel now reloads the database from disk each time it is shown, so commands added from the main window or QuickAdd panel appear immediately without restarting the app. Root cause: each Electron BrowserWindow maintained its own in-memory lowdb cache that was never refreshed after external writes.
 - **Fixed long commands breaking action buttons layout** — When a command snippet had very long text, it caused the entire page's Delete/Edit/Favourite buttons to be pushed off-screen. Root cause: CSS flex children from `.content-container` down to `.left-side` all used the default `min-width: auto`, which prevented them from shrinking below content width, inflating every ancestor and making `position: absolute; right: 12px` on the action menu resolve to an off-screen position. Fixed by adding `min-width: 0` at each flex level and `text-overflow: ellipsis` on long text elements.
+- **Fixed favourite toggle not updating UI** — Clicking the favourite button updated the database but the UI did not reflect the change. Root cause: lowdb returns the same in-memory object references, and `react-redux`'s `connect()` uses shallow equality — same reference means "no change", so the component skipped re-rendering. Fixed by shallow-cloning items in `ReduxHelpers.fillCommands` to ensure new object references on every dispatch.
 
 ---
 
