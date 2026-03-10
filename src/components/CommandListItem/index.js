@@ -23,8 +23,7 @@ class CommandListItem extends Component {
 
     toggleFavourite = () => {
         const {item, selectedMenu, setCommandList} = this.props;
-        let updatedItem = item;
-        updatedItem.isFavourite = !updatedItem.isFavourite;
+        const updatedItem = {...item, isFavourite: !item.isFavourite};
         Api.getInstance().updateCommandItem(updatedItem);
 
         setCommandList(selectedMenu);
@@ -40,8 +39,7 @@ class CommandListItem extends Component {
                 {
                     label: 'Yes',
                     onClick: () => {
-                        item.isTrash = true;
-                        Api.getInstance().updateCommandItem(item);
+                        Api.getInstance().updateCommandItem({...item, isTrash: true});
                         setCommandList(selectedMenu);
                         setTags();
                         NotyHelpers.open('This item has been moved to trash!', 'error', 2000);
@@ -85,8 +83,7 @@ class CommandListItem extends Component {
 
     restoreFromTrash = item => {
         const {selectedMenu, setCommandList, setTags} = this.props;
-        item.isTrash = false;
-        Api.getInstance().updateCommandItem(item);
+        Api.getInstance().updateCommandItem({...item, isTrash: false});
         setCommandList(selectedMenu);
         setTags();
         NotyHelpers.open('This item has been restored from trash!', 'success', 2000);

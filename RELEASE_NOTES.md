@@ -5,6 +5,9 @@
 - **Fixed long commands breaking action buttons layout** — Delete/Edit/Favourite buttons no longer get pushed off-screen when a command snippet contains very long text
 - **Fixed favourite toggle not updating UI** — Clicking the favourite star now immediately reflects the change in the command list
 
+### Changed
+- Eliminated direct prop mutation in command list item actions (favourite, trash, restore)
+
 ---
 
 ## Bug Fixes
