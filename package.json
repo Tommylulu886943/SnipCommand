@@ -73,6 +73,10 @@
     "react",
     "productivity"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tommylulu886943/SnipCommand.git"
+  },
   "bugs": {
     "url": "https://github.com/gurayyarar/SnipCommand/issues"
   },
@@ -101,6 +105,8 @@
     "appId": "com.snipcommand.app",
     "publish": {
       "provider": "github",
+      "owner": "Tommylulu886943",
+      "repo": "SnipCommand",
       "releaseType": "release"
     },
     "directories": {

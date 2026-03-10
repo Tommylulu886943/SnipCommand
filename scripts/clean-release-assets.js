@@ -2,10 +2,11 @@ const { execFileSync } = require('child_process');
 const pkg = require('../package.json');
 const version = pkg.version;
 const tag = `v${version}`;
-const repo = pkg.repository || 'Tommylulu886943/SnipCommand';
+const repo = (pkg.repository && pkg.repository.url)
+    ? pkg.repository.url.replace(/^.*github\.com\//, '').replace(/\.git$/, '')
+    : 'Tommylulu886943/SnipCommand';
 
 const unwanted = [
-    'latest.yml',
     `SnipCommand-Setup-${version}.exe.blockmap`
 ];
 
