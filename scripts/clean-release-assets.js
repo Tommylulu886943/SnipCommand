@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const pkg = require('../package.json');
 const version = pkg.version;
 const tag = `v${version}`;
@@ -11,7 +11,7 @@ const unwanted = [
 
 for (const asset of unwanted) {
     try {
-        execSync(`gh release delete-asset ${tag} "${asset}" -y -R ${repo}`, { stdio: 'inherit' });
+        execFileSync('gh', ['release', 'delete-asset', tag, asset, '-y', '-R', repo], { stdio: 'inherit' });
     } catch (e) {
         // Asset may not exist, ignore
     }
@@ -19,7 +19,7 @@ for (const asset of unwanted) {
 
 // Set clean release title
 try {
-    execSync(`gh release edit ${tag} --title "${tag}" -R ${repo}`, { stdio: 'inherit' });
+    execFileSync('gh', ['release', 'edit', tag, '--title', tag, '-R', repo], { stdio: 'inherit' });
 } catch (e) {
     // ignore
 }
