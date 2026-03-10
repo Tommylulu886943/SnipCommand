@@ -33,7 +33,7 @@
     "test": "rescripts test",
     "eject": "react-scripts eject",
     "electron-dev": "concurrently \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
-    "release": "cross-env NODE_OPTIONS=--openssl-legacy-provider rescripts build && electron-builder --publish always && node scripts/clean-release-assets.js"
+    "release": "cross-env NODE_OPTIONS=--openssl-legacy-provider rescripts build && electron-builder --win --publish always && node scripts/clean-release-assets.js"
   },
   "eslintConfig": {
     "extends": "react-app"

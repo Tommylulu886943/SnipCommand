@@ -16,3 +16,10 @@ for (const asset of unwanted) {
         // Asset may not exist, ignore
     }
 }
+
+// Set clean release title
+try {
+    execSync(`gh release edit ${tag} --title "${tag}" -R ${repo}`, { stdio: 'inherit' });
+} catch (e) {
+    // ignore
+}
