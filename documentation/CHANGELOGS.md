@@ -8,6 +8,9 @@
 - **Auto-update from GitHub releases** — Integrated `electron-updater` to check for new versions on GitHub. When an update is available, users can download and install it directly from Settings > Update with a progress bar and one-click restart.
 - **Auto-check update preference** — New checkbox in Settings > Update to enable/disable automatic update checks on startup (enabled by default). Preference stored as `autoCheckUpdate`.
 
+#### Changed
+- **Updated Settings > About page** — Now shows Tommy Lu as maintainer with link to `Tommylulu886943/SnipCommand`. Original author (Güray Yarar) credited separately. All project links (GitHub Page, License, Changelogs, Documentation, Report An Issue) now point to the `Tommylulu886943/SnipCommand` repository.
+
 ---
 
 ### v0.2.5

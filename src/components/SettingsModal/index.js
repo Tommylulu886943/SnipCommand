@@ -8,7 +8,7 @@ import {Button, TextField} from "../FormElements";
 import {NotyHelpers, ReduxHelpers, StorageHelpers} from "../../core/Helpers";
 import {openConfirmDialog} from "../ConfirmDialog";
 import {MainMenus} from "../../core/Constants";
-import {version, description, author, links} from '../../../package.json';
+import {version, description, author, originalAuthor, links} from '../../../package.json';
 
 import './style.scss';
 
@@ -541,9 +541,15 @@ class SettingsModal extends React.Component {
                                 <div className="product-name">SnipCommand <small>{version}</small></div>
                                 <div className="description">{description}</div>
                                 <div className="created-by">
-                                    <div className="text">Created by</div>
+                                    <div className="text">Maintained by</div>
                                     <div className="author" onClick={() => this.openLinkInBrowser('author-page')}>
                                         {author.name}
+                                    </div>
+                                </div>
+                                <div className="created-by original-author">
+                                    <div className="text">Originally created by</div>
+                                    <div className="author" onClick={() => this.openLinkInBrowser('original-author-page')}>
+                                        {originalAuthor.name}
                                     </div>
                                 </div>
 
