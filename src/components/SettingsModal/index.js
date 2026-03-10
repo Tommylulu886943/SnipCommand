@@ -25,7 +25,12 @@ class SettingsModal extends React.Component {
         autoPaste: true,
         recentCount: 10,
         panelPosition: 'center',
-        recordingTarget: null
+        recordingTarget: null,
+        autoCheckUpdate: true,
+        updateStatus: 'idle',
+        updateVersion: '',
+        updatePercent: 0,
+        updateError: ''
     }
 
     componentDidMount() {
@@ -38,13 +43,26 @@ class SettingsModal extends React.Component {
         const autoPaste = StorageHelpers.preference.get('autoPaste') !== false;
         const recentCount = StorageHelpers.preference.get('recentCount') || 10;
         const panelPosition = StorageHelpers.preference.get('panelPosition') || 'center';
-        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount, panelPosition});
+        const autoCheckUpdate = StorageHelpers.preference.get('autoCheckUpdate') !== false;
+        this.setState({dbDirectory, backupDirectory, appTheme, globalHotkey, quickAddHotkey, autoCloseAfterCopy, autoPaste, recentCount, panelPosition, autoCheckUpdate});
         this.listBackupFiles();
+
+        this._updateHandler = (event, data) => {
+            const stateUpdate = { updateStatus: data.status };
+            if (data.version) stateUpdate.updateVersion = data.version;
+            if (data.percent !== undefined) stateUpdate.updatePercent = data.percent;
+            if (data.message) stateUpdate.updateError = data.message;
+            this.setState(stateUpdate);
+        };
+        ipcRenderer.on('update-status', this._updateHandler);
     }
 
     componentWillUnmount() {
         if (this.state.recordingTarget) {
             document.removeEventListener('keydown', this.handleHotkeyCapture);
+        }
+        if (this._updateHandler) {
+            ipcRenderer.removeListener('update-status', this._updateHandler);
         }
     }
 
@@ -192,6 +210,66 @@ class SettingsModal extends React.Component {
         const val = e.target.value;
         StorageHelpers.preference.set('panelPosition', val);
         this.setState({panelPosition: val});
+    }
+
+    toggleAutoCheckUpdate = () => {
+        const newVal = !this.state.autoCheckUpdate;
+        StorageHelpers.preference.set('autoCheckUpdate', newVal);
+        this.setState({autoCheckUpdate: newVal});
+    }
+
+    onCheckForUpdates = () => {
+        this.setState({updateStatus: 'checking', updateError: ''});
+        ipcRenderer.invoke('check-for-updates');
+    }
+
+    onDownloadUpdate = () => {
+        this.setState({updateStatus: 'downloading', updatePercent: 0});
+        ipcRenderer.invoke('download-update');
+    }
+
+    onInstallUpdate = () => {
+        ipcRenderer.invoke('install-update');
+    }
+
+    renderUpdateStatus = () => {
+        const {updateStatus, updateVersion, updatePercent, updateError} = this.state;
+
+        switch (updateStatus) {
+            case 'checking':
+                return <div className="update-status">Checking for updates...</div>;
+            case 'available':
+                return (
+                    <div className="update-status">
+                        <div className="update-available">
+                            New version <b>{updateVersion}</b> is available!
+                        </div>
+                        <Button text="Download Update" styleType="success" onClick={this.onDownloadUpdate}/>
+                    </div>
+                );
+            case 'downloading':
+                return (
+                    <div className="update-status">
+                        <div>Downloading update... {updatePercent}%</div>
+                        <div className="progress-bar">
+                            <div className="progress-fill" style={{width: `${updatePercent}%`}}/>
+                        </div>
+                    </div>
+                );
+            case 'downloaded':
+                return (
+                    <div className="update-status">
+                        <div className="update-available">Update downloaded and ready to install!</div>
+                        <Button text="Restart & Install" styleType="success" onClick={this.onInstallUpdate}/>
+                    </div>
+                );
+            case 'not-available':
+                return <div className="update-status success">You are using the latest version.</div>;
+            case 'error':
+                return <div className="update-status error">Update check failed: {updateError}</div>;
+            default:
+                return null;
+        }
     }
 
     render() {
@@ -433,12 +511,28 @@ class SettingsModal extends React.Component {
                         </div>
                         <div className={`content${selectedTab === 'update' ? ' active' : ''}`}>
                             <div className="update-section">
-                                <div className="info">You are using version of <b>{version}</b></div>
-                                <Button
-                                    text="Check For Updates..."
-                                    styleType="default"
-                                    onClick={() => this.openLinkInBrowser("releases")}
-                                />
+                                <div className="info">Current version: <b>{version}</b></div>
+
+                                <div className="checkbox-container">
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            checked={this.state.autoCheckUpdate}
+                                            onChange={this.toggleAutoCheckUpdate}
+                                        />
+                                        <span>Automatically check for updates on startup</span>
+                                    </label>
+                                </div>
+
+                                <div className="update-actions">
+                                    <Button
+                                        text="Check For Updates"
+                                        styleType="default"
+                                        onClick={this.onCheckForUpdates}
+                                    />
+                                </div>
+
+                                {this.renderUpdateStatus()}
                             </div>
                         </div>
                         <div className={`content${selectedTab === 'about' ? ' active' : ''}`}>

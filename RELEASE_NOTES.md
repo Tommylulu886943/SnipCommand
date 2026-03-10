@@ -1,3 +1,11 @@
+## v0.2.6
+
+### Added
+- **Auto-update from GitHub releases** — The app now checks for new versions on startup and can download and install updates in-app. A progress bar shows download status, and "Restart & Install" applies the update.
+- **Auto-check update setting** — New checkbox in Settings > Update to enable/disable automatic update checks on startup (enabled by default)
+
+---
+
 ## v0.2.5
 
 ### Bug Fixes

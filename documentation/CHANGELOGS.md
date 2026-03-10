@@ -1,6 +1,15 @@
 # CHANGELOGS
 
 
+### v0.2.6
+**March 11, 2026**
+
+#### Added
+- **Auto-update from GitHub releases** — Integrated `electron-updater` to check for new versions on GitHub. When an update is available, users can download and install it directly from Settings > Update with a progress bar and one-click restart.
+- **Auto-check update preference** — New checkbox in Settings > Update to enable/disable automatic update checks on startup (enabled by default). Preference stored as `autoCheckUpdate`.
+
+---
+
 ### v0.2.5
 **March 8, 2026**
 

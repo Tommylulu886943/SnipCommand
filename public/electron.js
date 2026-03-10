@@ -5,6 +5,7 @@ const { execFile, execFileSync } = require('child_process');
 const fs = require('fs');
 const Store = require('electron-store');
 const { menu } = require("./menu");
+const { autoUpdater } = require('electron-updater');
 
 const preferences = new Store({ name: 'preferences' });
 
@@ -467,6 +468,50 @@ function pasteToForeground() {
 }
 
 // ──────────────────────────────────────
+// Auto Updater
+// ──────────────────────────────────────
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+
+function sendUpdateStatus(status, data) {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('update-status', { status, ...data });
+    }
+}
+
+autoUpdater.on('checking-for-update', () => {
+    sendUpdateStatus('checking');
+});
+
+autoUpdater.on('update-available', (info) => {
+    sendUpdateStatus('available', { version: info.version });
+});
+
+autoUpdater.on('update-not-available', () => {
+    sendUpdateStatus('not-available');
+});
+
+autoUpdater.on('download-progress', (progress) => {
+    sendUpdateStatus('downloading', { percent: Math.round(progress.percent) });
+});
+
+autoUpdater.on('update-downloaded', () => {
+    sendUpdateStatus('downloaded');
+});
+
+autoUpdater.on('error', (err) => {
+    sendUpdateStatus('error', { message: err.message || 'Update check failed' });
+});
+
+function checkForUpdates() {
+    if (isDev) {
+        sendUpdateStatus('error', { message: 'Auto-update is not available in dev mode' });
+        return;
+    }
+    autoUpdater.checkForUpdates();
+}
+
+// ──────────────────────────────────────
 // App Lifecycle
 // ──────────────────────────────────────
 app.disableHardwareAcceleration();
@@ -478,6 +523,12 @@ app.on("ready", () => {
     createTray();
     initInputHelper();
     registerGlobalHotkeys();
+
+    // Auto-check for updates on startup (if enabled)
+    const autoCheck = preferences.get('autoCheckUpdate');
+    if (autoCheck !== false && !isDev) {
+        setTimeout(() => checkForUpdates(), 5000);
+    }
 });
 
 app.on('before-quit', () => {
@@ -561,4 +612,17 @@ ipcMain.handle('get-quick-add-data', () => {
 // Settings — re-register all hotkeys when any hotkey changes
 ipcMain.handle('update-global-hotkeys', () => {
     registerGlobalHotkeys();
+});
+
+// Auto-update
+ipcMain.handle('check-for-updates', () => {
+    checkForUpdates();
+});
+
+ipcMain.handle('download-update', () => {
+    autoUpdater.downloadUpdate();
+});
+
+ipcMain.handle('install-update', () => {
+    autoUpdater.quitAndInstall();
 });
